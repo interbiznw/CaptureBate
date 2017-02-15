@@ -4,6 +4,7 @@ import modellists
 from time import sleep
 from config import *
 from thread import *
+from model import CBModel
 
 if __name__ == '__main__':
     ## Main section
@@ -18,7 +19,7 @@ if __name__ == '__main__':
     # Select models for recording according to wishlist
     Selected_models = modellists.Select_models(Models_list_store)
     # Loop to send which model to capture
-    for model in Selected_models:
+    for model in Selected_models: # type: CBModel
         # For thread to work it needs to be a tuple
         model = (model,)
         # Starting a new thread
@@ -36,7 +37,7 @@ if __name__ == '__main__':
         Models_list_store = modellists.Compare_lists(modellists.Models_list(client), models_online)
         Selected_models = modellists.Select_models(Models_list_store)
         # Loop to start new models
-        for model in Selected_models:
+        for model in Selected_models: # type: CBModel
             # For thread to work it needs to be a tuple
             model = (model,)
             # Starting a new thread
