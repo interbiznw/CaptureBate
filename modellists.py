@@ -21,7 +21,7 @@ def Models_list(client):
         logging.error(e)
         print ('error connecting to chaturbate')
         return ''
-    soup = BeautifulSoup(r2.text)
+    soup = BeautifulSoup(r2.text, 'lxml')
     page_source = 'Page Source for ' + URL_follwed + '\n' + r2.text
     if Debugging == True:
         Store_Debug(page_source, "modellist.log")
