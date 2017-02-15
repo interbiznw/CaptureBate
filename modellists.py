@@ -99,7 +99,7 @@ def addmodel(added_model):
             # Starting livestreamer
             FNULL = open(os.devnull, 'w')
             subprocess.check_call([LIVESTREAMER, '-Q', '--hls-segment-threads', '2', '--hls-live-edge', '5', '-o', path, 'http://chaturbate.com/' + added_model.name, 'best'], stdout=FNULL, stderr=subprocess.STDOUT)
-            models_online.remove(added_model.name)
+            models_online.remove(added_model)
         except Exception:
             logging.info('No stream on ' + added_model.name)
 
