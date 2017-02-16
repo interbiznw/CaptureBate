@@ -86,6 +86,7 @@ Video_folder = Config_file('folders', 'Video_folder')
 Script_folder = Config_file('folders', 'Script_folder')
 Log_file = Config_file('files', 'Log_file')
 wishlist_file = Config_file('files', 'wishlist_file')
+H264_remux = ast.literal_eval(Config_file('files', 'H264_remux'))
 Time_delay = int(Config_file('delays', 'Time_delay'))
 Version = Config_file('version', 'Version')
 # Enable storing html to debug.log file + set logging level

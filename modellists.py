@@ -98,7 +98,12 @@ def addmodel(added_model):
                 os.makedirs(Video_folder + '/' + added_model.name)
             # Starting livestreamer
             FNULL = open(os.devnull, 'w')
-            subprocess.check_call([LIVESTREAMER, '-Q', '--hls-segment-threads', '2', '--hls-live-edge', '5', '-o', path, 'http://chaturbate.com/' + added_model.name, 'best'], stdout=FNULL, stderr=subprocess.STDOUT)
+            #FNULL = open('livestreamer.'+added_model.name+'.log', 'w')
+
+            if H264_remux:
+                subprocess.check_call(LIVESTREAMER + ' -Q --hls-segment-threads 2 --hls-live-edge 5 -a "-i - -c:v copy -absf aac_adtstoasc -strict -2 -movflags frag_keyframe \'' + path + '\'" -p ffmpeg http://chaturbate.com/' + added_model.name + ' best', stdout=FNULL, stderr=subprocess.STDOUT, shell=True)
+            else:
+                subprocess.check_call([LIVESTREAMER, '-Q', '--hls-segment-threads', '2', '--hls-live-edge', '5', '-o', path, 'http://chaturbate.com/' + added_model.name, 'best'], stdout=FNULL, stderr=subprocess.STDOUT)
             models_online.remove(added_model)
         except Exception:
             logging.info('No stream on ' + added_model.name)
