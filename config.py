@@ -87,10 +87,12 @@ Script_folder = Config_file('folders', 'Script_folder')
 Log_file = Config_file('files', 'Log_file')
 wishlist_file = Config_file('files', 'wishlist_file')
 Video_filename = Config_file('files', 'Video_filename')
-H264_remux = ast.literal_eval(Config_file('files', 'H264_remux'))
 Time_delay = int(Config_file('delays', 'Time_delay'))
 Version = Config_file('version', 'Version')
 # Enable storing html to debug.log file + set logging level
 Debugging = ast.literal_eval(Config_file('debug', 'Debugging'))
 LIVESTREAMER = Config_file('advanced', 'LIVESTREAMER')
+H264_remux = ast.literal_eval(Config_file('advanced', 'H264_remux'))
+HLS_live_edge = int(Config_file('advanced', 'HLS_live_edge'))
+HLS_threads = int(Config_file('advanced', 'HLS_threads'))
 models_online = []

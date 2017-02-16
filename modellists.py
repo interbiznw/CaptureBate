@@ -52,7 +52,7 @@ def Select_models(Models_list):
     Wish_list = Wishlist()
     Model_list_approved = []
     logging.info('[Select_models] Which models are approved?')
-    for model in Models_list: # type: CBModel
+    for model in Models_list:  # type: CBModel
         if model.name in Wish_list:
             logging.info("[Select_models] " + model.name + ' is approved')
             Model_list_approved.append(model)
@@ -62,7 +62,7 @@ def Select_models(Models_list):
 
 
 def Compare_lists(ml, mlr):
-    for model in mlr: # type: CBModel
+    for model in mlr:  # type: CBModel
         if checkIfModelRecorded(model) == False:
             logging.debug("[Compare_lists CheckModelRecorded] Model " + model.name + " is supposed to be recording, but I could not find the process.")
             print ("[Compare_lists CheckModelRecorded] Model " + model.name + " is supposed to be recording, but I could not find the process.")
@@ -75,7 +75,7 @@ def Compare_lists(ml, mlr):
                 pass
     ml_new = []
     logging.info('[Compare_lists] Checking model list:')
-    for model in ml: # type: CBModel
+    for model in ml:  # type: CBModel
         if model in mlr:
             logging.info("[Compare_lists] " + model.name + " is still being recorded")
             logging.debug("[Compare_lists] Removing " + model.name + " model")
@@ -104,14 +104,20 @@ def addmodel(added_model):
                 os.makedirs(os.path.dirname(path))
             # Starting livestreamer
             FNULL = open(os.devnull, 'w')
-            #FNULL = open('livestreamer.'+added_model.name+'.log', 'w')
+            # FNULL = open('livestreamer.'+added_model.name+'.log', 'w')
 
             if H264_remux:
-                subprocess.check_call(LIVESTREAMER + ' -Q --hls-segment-threads 2 --hls-live-edge 5 -a "-i - -c:v copy -absf aac_adtstoasc -strict -2 -movflags frag_keyframe \'' + path + '\'" -p ffmpeg http://chaturbate.com/' + added_model.name + ' best', stdout=FNULL, stderr=subprocess.STDOUT, shell=True)
+                subprocess.check_call(
+                    LIVESTREAMER + ' -Q --hls-segment-threads ' + str(HLS_threads) + ' --hls-live-edge ' + str(HLS_live_edge) + \
+                    ' -a "-i - -c:v copy -absf aac_adtstoasc -strict -2 -movflags frag_keyframe \'' + path + '\'" -p ffmpeg http://chaturbate.com/' + added_model.name + ' best',
+                    stdout=FNULL, stderr=subprocess.STDOUT, shell=True)
             else:
-                subprocess.check_call([LIVESTREAMER, '-Q', '--hls-segment-threads', '2', '--hls-live-edge', '5', '-o', path, 'http://chaturbate.com/' + added_model.name, 'best'], stdout=FNULL, stderr=subprocess.STDOUT)
+                subprocess.check_call([
+                    LIVESTREAMER, '-Q', '--hls-segment-threads', str(HLS_threads), '--hls-live-edge', str(HLS_live_edge),
+                    '-o', path, 'http://chaturbate.com/' + added_model.name, 'best'
+                ], stdout=FNULL, stderr=subprocess.STDOUT)
             models_online.remove(added_model)
-        except Exception:
+        except Exception as e:
             logging.info('No stream on ' + added_model.name)
 
 
