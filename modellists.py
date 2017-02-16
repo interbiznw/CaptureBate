@@ -92,10 +92,16 @@ def addmodel(added_model):
             models_online.append(added_model)
             logging.info('Starting recording of ' + added_model.name)
             timestamp = time.strftime("%d-%m-%Y_%H-%M-%S")
-            path = Video_folder + '/' + added_model.name + '/' + added_model.name + '_' + timestamp + '.mp4'
-            if not os.path.exists(Video_folder + '/' + added_model.name):
-                logging.info('creating directory ' + Video_folder + '/' + added_model.name)
-                os.makedirs(Video_folder + '/' + added_model.name)
+
+            path = os.path.join(Video_folder, '') + Video_filename
+            # Template for filename, e.g. Video_filename = <gender>/<model>/<model>_<timestamp>.ts
+            path = path.replace('<model>', added_model.name)
+            path = path.replace('<gender>', added_model.gender)
+            path = path.replace('<timestamp>', timestamp)
+
+            if not os.path.exists(os.path.dirname(path)):
+                logging.info('creating directory ' + os.path.dirname(path))
+                os.makedirs(os.path.dirname(path))
             # Starting livestreamer
             FNULL = open(os.devnull, 'w')
             #FNULL = open('livestreamer.'+added_model.name+'.log', 'w')
