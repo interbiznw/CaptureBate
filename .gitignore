@@ -2,3 +2,4 @@
 .directory
 *.pyc
 *.log
+config.conf
