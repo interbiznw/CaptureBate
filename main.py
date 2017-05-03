@@ -18,6 +18,11 @@ if __name__ == '__main__':
     Models_list_store = modellists.Models_list(client)
     # Select models for recording according to wishlist
     Selected_models = modellists.Select_models(Models_list_store)
+
+    if not Selected_models:
+        Selected_models = Models_list_store
+        print ('Empty Whitelist, using complete favorite list')
+
     # Loop to send which model to capture
     for model in Selected_models: # type: CBModel
         # For thread to work it needs to be a tuple
