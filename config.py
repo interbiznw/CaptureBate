@@ -10,7 +10,7 @@ import ast
 
 def Config_file(section, option):
     config = SafeConfigParser()
-    config.read('config.conf')
+    config.read('config/config.conf')
     try:
         value = config.get(section, option)
     except Exception, e:
