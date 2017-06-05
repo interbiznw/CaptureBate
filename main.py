@@ -1,6 +1,7 @@
 import socket
 import connection
 import modellists
+from datetime import datetime
 from time import sleep
 from config import *
 from thread import *
@@ -21,7 +22,7 @@ if __name__ == '__main__':
 
     if not Selected_models:
         Selected_models = Models_list_store
-        print ('Empty Whitelist, using complete favorite list')
+        print (datetime.now().strftime("%Y-%m-%d %H:%M:%S ") + 'Empty Whitelist, using complete favorite list')
 
     # Loop to send which model to capture
     for model in Selected_models: # type: CBModel
@@ -30,7 +31,7 @@ if __name__ == '__main__':
         # Starting a new thread
         start_new_thread(modellists.addmodel, model)
         sleep(1)
-    print ('Models currently recorded: ' + str(models_online))
+    print (datetime.now().strftime("%Y-%m-%d %H:%M:%S ") + 'Models currently recorded: ' + str(models_online))
     logging.info('Waiting for %d seconds' % Time_delay)
     sleep(Time_delay)
     while True:
@@ -50,5 +51,5 @@ if __name__ == '__main__':
             sleep(1)
         logging.info('[Loop]Model list after check looks like: %d models:\n %s \n and models currently being recorded are:\n %s' % (len(Models_list_store), str(Models_list_store), str(models_online)))
         logging.info('[Sleep] Waiting for next check (%d seconds)' % Time_delay)
-        print ('Models currently recorded: ' + str(models_online))
+        print (datetime.now().strftime("%Y-%m-%d %H:%M:%S") + ' Models currently recorded: ' + str(models_online))
         sleep(Time_delay)
