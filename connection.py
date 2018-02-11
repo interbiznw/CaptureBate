@@ -15,7 +15,7 @@ def Connection():
             logging.info('Connecting to ' + URL)
             client = requests.session()
             client.mount('https://', MyAdapter())
-            client.headers.update({'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.153 Safari/537.36'})
+            client.headers.update({'User-Agent': 'Mozilla/5.0 (iPad; CPU OS 10_2 like Mac OS X) AppleWebKit/602.3.12 (KHTML, like Gecko) Version/10.0 Mobile/14C92 Safari/602.1'})
             # Retrieve the CSRF token first
             r1 = client.get(URL, timeout=(6.05, 27))
             csrftoken = r1.cookies['csrftoken']
