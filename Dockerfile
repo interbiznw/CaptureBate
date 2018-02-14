@@ -1,4 +1,4 @@
-FROM python:2-alpine3.6
+FROM python:2-alpine3.7
 RUN apk update
 RUN apk add  git gcc musl-dev linux-headers libxslt-dev libxml2-dev --no-cache
 RUN pip install streamlink
