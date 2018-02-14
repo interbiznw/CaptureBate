@@ -20,7 +20,7 @@ def Connection():
             r1 = client.get(URL, timeout=(6.05, 27))
             csrftoken = r1.cookies['csrftoken']
             # Set login data and perform submit
-            login_data = dict(username=USER, password=PASS, csrfmiddlewaretoken=csrftoken, next='/')
+            login_data = dict(username=USER, password=PASS, cookies={'agreeterms': '1'}, csrfmiddlewaretoken=csrftoken, next='/')
             try:
                 r = client.post(URL, data=login_data, headers=dict(Referer=URL), timeout=6.05)
                 page_source = 'Page Source for ' + URL + '\n' + r.text
