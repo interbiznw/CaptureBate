@@ -80,6 +80,7 @@ def Store_Debug(lines, filename):
 # Setup options
 URL = Config_file('url', 'URL')
 URL_follwed = Config_file('url', 'URL_follwed')
+USERAGENT = Config_file('url', 'USERAGENT')
 USER = Config_file('credentials', 'USER')
 PASS = Config_file('credentials', 'PASS')
 Video_folder = Config_file('folders', 'Video_folder')
