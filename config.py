@@ -95,7 +95,6 @@ if (Config_file('folders', 'Converted_folder')[:1] == "/"):
 else:
     Converted_folder = (os.getcwd() + "/" + Config_file('folders', 'Converted_folder'))
 
-=======
 Video_folder = Config_file('folders', 'Video_folder')
 Script_folder = Config_file('folders', 'Script_folder')
 Log_file = Config_file('files', 'Log_file')
