@@ -54,10 +54,10 @@ def Select_models(Models_list):
     for model in Models_list:  # type: CBModel
         if Disable_wishlist == False:
             if model in Wish_list:
-                logging.info("[Select_models] " + model + ' is approved')
+                logging.info("[Select_models] " + model.name + ' is approved')
                 Model_list_approved.append(model)
         else:
-            logging.info("[Select_models] " + model + ' is approved')
+            logging.info("[Select_models] " + model.name + ' is approved')
             Model_list_approved.append(model)
     if len(Model_list_approved) == 0:
         logging.warning('[Select_models]  No models for approving')
