@@ -83,6 +83,7 @@ URL = Config_file('url', 'URL')
 URL_follwed = Config_file('url', 'URL_follwed')
 USER = Config_file('credentials', 'USER')
 PASS = Config_file('credentials', 'PASS')
+USERAGENT = Config_file('url', 'USERAGENT')
 
 if (Config_file('folders', 'Video_folder')[:1] == "/"):
     Video_folder = Config_file('folders', 'Video_folder')
