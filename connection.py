@@ -53,7 +53,7 @@ def Connection(client_factory):
             r = client.post(URL, data=login_data, headers=dict(Referer=URL))
             page_source = 'Page Source for ' + URL + '\n' + r.text
             if 'You have logged in too many times' in r.text:
-                raise Exception('Too many logins deteced')
+                raise Exception('Too many logins detected')
             # if Debugging is enabled Page source goes to debug.log file
             if Debugging is True:
                 Store_Debug(page_source, "connection.log")
