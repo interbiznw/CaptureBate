@@ -83,7 +83,6 @@ URL_follwed = Config_file('url', 'URL_follwed')
 USERAGENT = Config_file('url', 'USERAGENT')
 USER = Config_file('credentials', 'USER')
 PASS = Config_file('credentials', 'PASS')
-<<<<<<< HEAD
 USERAGENT = Config_file('url', 'USERAGENT')
 
 if (Config_file('folders', 'Video_folder')[:1] == "/"):
@@ -98,7 +97,6 @@ else:
 
 =======
 Video_folder = Config_file('folders', 'Video_folder')
->>>>>>> parent of 1cf6ace... Check if already logged in
 Script_folder = Config_file('folders', 'Script_folder')
 Log_file = Config_file('files', 'Log_file')
 wishlist_file = Config_file('files', 'wishlist_file')
