@@ -14,7 +14,8 @@ if __name__ == '__main__':
     # Create directories
     Preconditions(Video_folder)
     # Connecting
-    client = connection.Connection()
+    client_factory = connection.ClientFactory()
+    client = connection.Connection(client_factory)
     # Get the models list and create main list
     Models_list_store = modellists.Models_list(client)
     # Select models for recording according to wishlist
@@ -37,7 +38,7 @@ if __name__ == '__main__':
     while True:
         ## Reassign updated main models list
         # Connecting to server
-        client = connection.Connection()
+        client = connection.Connection(client_factory)
         logging.info(str(len(Models_list_store)) + ' Models in the list before checking: ' + str(Models_list_store))
         # Requesting to server list of models currently captured
         Models_list_store = modellists.Compare_lists(modellists.Models_list(client), models_online)
