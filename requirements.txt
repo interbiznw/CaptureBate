@@ -2,6 +2,6 @@ argparse
 beautifulsoup4
 requests
 urllib3
-# wsgiref
+configparser
 streamlink
 futures
