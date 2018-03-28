@@ -45,6 +45,7 @@ def Connection(client_factory):
     else:
         logging.info('NOT LOGGED IN!')
         csrftoken = r1.cookies['csrftoken']
+		header = {'User-Agent':USERAGENT}
 		client.headers.update(header)
         # Set login data and perform submit
         login_data = dict(username=USER, password=PASS, cookies={'agreeterms': '1'}, csrfmiddlewaretoken=csrftoken, next='/')
