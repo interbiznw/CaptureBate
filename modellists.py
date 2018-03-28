@@ -46,19 +46,23 @@ def Models_list(client):
     logging.info('[Models_list] %s models are online: %s' % (len(online_models), str(online_models)))
     return online_models
 
-
 def Select_models(Models_list):
     # Select models that we need
     Wish_list = Wishlist()
     Model_list_approved = []
     logging.info('[Select_models] Which models are approved?')
     for model in Models_list:  # type: CBModel
-        if model.name in Wish_list:
-            logging.info("[Select_models] " + model.name + ' is approved')
+        if Disable_wishlist == False:
+            if model in Wish_list:
+                logging.info("[Select_models] " + model + ' is approved')
+                Model_list_approved.append(model)
+        else:
+            logging.info("[Select_models] " + model + ' is approved')
             Model_list_approved.append(model)
     if len(Model_list_approved) == 0:
         logging.warning('[Select_models]  No models for approving')
     return Model_list_approved
+
 
 
 def Compare_lists(ml, mlr):

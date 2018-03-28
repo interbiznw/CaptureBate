@@ -97,3 +97,4 @@ H264_remux = ast.literal_eval(Config_file('advanced', 'H264_remux'))
 HLS_live_edge = int(Config_file('advanced', 'HLS_live_edge'))
 HLS_threads = int(Config_file('advanced', 'HLS_threads'))
 models_online = []
+Disable_wishlist = Config_file('advanced', 'Disable_wishlist')
