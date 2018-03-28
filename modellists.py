@@ -1,13 +1,14 @@
 '''
-Functions such as getting models list, details for livestreamer, etc.
+Functions such as getting models list, details for rtmpdump, etc.
 '''
 from config import *
 from bs4 import BeautifulSoup
 import re
-import time
-import datetime
-import signal
-import os
+import time, datetime
+import signal, os
+import subprocess
+import psutil
+from model import CBModel
 
 
 def Models_list(client):
@@ -15,29 +16,33 @@ def Models_list(client):
     try:
         logging.info("Redirecting to " + URL_follwed)
         r2 = client.get(URL_follwed)
-    except Exception as e:
+    except Exception, e:
         logging.error('Some error during connecting to ' + URL)
         logging.error(e)
-        return []
-    soup = BeautifulSoup(r2.text, "html.parser")
-    # print('Page Source for ' + URL_follwed + '\n' + r2.text)
-
+        print ('error connecting to chaturbate')
+        return ''
+    soup = BeautifulSoup(r2.text, 'lxml')
     page_source = 'Page Source for ' + URL_follwed + '\n' + r2.text
     if Debugging == True:
         Store_Debug(page_source, "modellist.log")
-    ul_list = soup.find('ul', class_="list")
     li_list = soup.findAll('li', class_="cams")
     # logging.debug(li_list)
     if Debugging == True:
         Store_Debug(li_list, "li_list.log")
-    # Finding who is not offline
+    ## Finding who is not offline
     online_models = []
     for n in li_list:
         if n.text != "offline":
+            span_age_list = n.parent.parent.find('span', class_="age")
+            genders = {'genderf': 'female', 'genderm': 'male', 'genderc': 'couple', 'genders': 'trans'}
+            gender = ''
+            if len(span_age_list) and len(span_age_list.attrs['class']) > 1:
+                gender = genders.get(span_age_list.attrs['class'][1], 'unknown')
+
             if n.parent.parent.parent.div.text == "IN PRIVATE":
                 logging.warning(n.parent.parent.a.text[1:] + ' model is now in private mode')
             else:
-                online_models.append(n.parent.parent.a.text[1:])
+                online_models.append(CBModel(name=n.parent.parent.a.text[1:], gender=gender))
     logging.info('[Models_list] %s models are online: %s' % (len(online_models), str(online_models)))
     return online_models
 
@@ -47,99 +52,84 @@ def Select_models(Models_list):
     Wish_list = Wishlist()
     Model_list_approved = []
     logging.info('[Select_models] Which models are approved?')
-    for model in Models_list:
-        if Disable_wishlist == False:
-            if model in Wish_list:
-                logging.info("[Select_models] " + model + ' is approved')
-                Model_list_approved.append(model)
-        else:
-            logging.info("[Select_models] " + model + ' is approved')
+    for model in Models_list:  # type: CBModel
+        if model.name in Wish_list:
+            logging.info("[Select_models] " + model.name + ' is approved')
             Model_list_approved.append(model)
     if len(Model_list_approved) == 0:
         logging.warning('[Select_models]  No models for approving')
     return Model_list_approved
 
 
-def Password_hash(string):
-    # replace special chars for unix shell! \$ and \/ and \= mostly
-    string = string.replace("\u003D", "\=")
-    string = string.replace("$", "\$")
-    string = string.replace("/", "\/")
-    return string
-
-
-def Get_links(client, Models_list_store):
-        # Get the models options for creating rtmpdump string
-    if (len(Models_list_store) != 0):
-        for model in Models_list_store:
-            # write models livestreamer string to file
-            flinks = open(Script_folder + '/' + model + '.sh', 'w')
-            ts = time.time()
-            st = datetime.datetime.fromtimestamp(ts).strftime('%Y%m%d_%H%M%S')
-
-            form_dict = {
-                "model_name": model,
-                "video_folder": Video_folder,
-                "converted_folder": Converted_folder,
-                "date_string": st,
-            }
-            script = """#!/bin/sh
-streamlink --force --quiet --output "%(video_folder)s/Chaturbate_%(model_name)s_%(date_string)s.flv" http://chaturbate.com/%(model_name)s best
-if ffmpeg -loglevel quiet -i "%(video_folder)s/Chaturbate_%(model_name)s_%(date_string)s.flv" -vcodec copy -acodec libmp3lame "%(converted_folder)s/Chaturbate_%(model_name)s_%(date_string)s.flv.mp4"; then
-    rm "%(video_folder)s/Chaturbate_%(model_name)s_%(date_string)s.flv"
-fi;
-""" % form_dict
-            flinks.write(script)
-            flinks.close()
-            os.chmod(Script_folder + '/' + model + '.sh', 0o777)
-            logging.info('[Get_links] ' + model + '.sh is created')
-    else:
-        logging.warning('[Get_links] No models to get!')
-
-
-def Rtmpdump_models():
-    models = []
-    for line in os.popen("ps xa | grep streamlink | grep -v 'grep'"):
-        fields = line.split()
-        # EXAMPLE: ['65192', 'pts/7', 'Sl+', '0:01', '/usr/bin/python',
-        # '/usr/local/bin/livestreamer', '--output',
-        # 'Video_folder_date.timestamp_username.flv',
-        # 'http://chaturbate.com/username', 'best', '--quiet']
-
-        # 28908 pts/4    R+     0:00 /home/tom/Projects/CaptureBate/virtualenv/bin/python2.7
-        # /home/tom/Projects/CaptureBate/virtualenv/bin/livestreamer --force --quiet --output
-        # /home/tom/Projects/CaptureBate/Captured/Chaturbate_2016.31.08_22.04_sexydevilxx.flv
-        # http://chaturbate.com/sexydevilxx best
-
-        try:
-            pid = fields[0]
-            process = fields[5]
-        except IndexError as e:
-            print (fields)
-            print (e)
-            continue
-
-        if "streamlink" in process:
-            if Video_folder in fields[9]:
-                if "http://chaturbate.com/" in (fields[10]):
-                    models.append(fields[10][22:])
-            else:
-                logging.debug('Not In Video Folder: \n' + fields)
-    logging.debug('Streamlink shows the following models: \n' + str(models))
-    return models
-
-
 def Compare_lists(ml, mlr):
-    # Comparing old models list(Main list) to new(updated) models list
-    # This loop is used for removing offline models from main list
+    for model in mlr:  # type: CBModel
+        if checkIfModelRecorded(model) == False:
+            logging.debug("[Compare_lists CheckModelRecorded] Model " + model.name + " is supposed to be recording, but I could not find the process.")
+            print ("[Compare_lists CheckModelRecorded] Model " + model.name + " is supposed to be recording, but I could not find the process.")
+            try:
+                mlr.remove(model)
+            except ValueError:
+                # Model was removed from the modellist WHILE we are iterating over it (recording process ended properly?)
+                # Comparing old models list(Main list) to new(updated) models list
+                # This loop is used for removing offline models from main list
+                pass
     ml_new = []
     logging.info('[Compare_lists] Checking model list:')
-    for model in ml:
+    for model in ml:  # type: CBModel
         if model in mlr:
-            logging.info("[Compare_lists] " + model + " is still being recorded")
-            logging.debug("[Compare_lists] Removing " + model + " model")
+            logging.info("[Compare_lists] " + model.name + " is still being recorded")
+            logging.debug("[Compare_lists] Removing " + model.name + " model")
         else:
-            logging.debug("[Compare_lists] " + model + " is online")
+            logging.debug("[Compare_lists] " + model.name + " is online")
             ml_new.append(model)
     logging.debug("[Compare_lists] List of models after comparing:" + str(ml_new))
     return ml_new
+
+
+def addmodel(added_model):
+    if not added_model in models_online:
+        try:
+            models_online.append(added_model)
+            logging.info('Starting recording of ' + added_model.name)
+            timestamp = time.strftime("%d-%m-%Y_%H-%M-%S")
+
+            path = os.path.join(Video_folder, '') + Video_filename
+            # Template for filename, e.g. Video_filename = <gender>/<model>/<model>_<timestamp>.ts
+            path = path.replace('<model>', added_model.name)
+            path = path.replace('<gender>', added_model.gender)
+            path = path.replace('<timestamp>', timestamp)
+
+            if not os.path.exists(os.path.dirname(path)):
+                logging.info('creating directory ' + os.path.dirname(path))
+                os.makedirs(os.path.dirname(path))
+            # Starting livestreamer
+            FNULL = open(os.devnull, 'w')
+            # FNULL = open('livestreamer.'+added_model.name+'.log', 'w')
+
+            if H264_remux:
+                subprocess.check_call(
+                    LIVESTREAMER + ' -Q --hls-segment-threads ' + str(HLS_threads) + ' --hls-live-edge ' + str(HLS_live_edge) + \
+                    ' -a "-i - -c:v copy -absf aac_adtstoasc -strict -2 -movflags frag_keyframe \'' + path + '\'" -p ffmpeg http://chaturbate.com/' + added_model.name + ' best',
+                    stdout=FNULL, stderr=subprocess.STDOUT, shell=True)
+            else:
+                subprocess.check_call([
+                    LIVESTREAMER, '-Q', '--hls-segment-threads', str(HLS_threads), '--hls-live-edge', str(HLS_live_edge),
+                    '-o', path, 'http://chaturbate.com/' + added_model.name, 'best'
+                ], stdout=FNULL, stderr=subprocess.STDOUT)
+            models_online.remove(added_model)
+        except Exception as e:
+            logging.info('No stream on ' + added_model.name)
+
+
+def checkIfModelRecorded(model):
+    _u = lambda t: t.decode('UTF-8', 'replace') if isinstance(t, str) else t
+    for proc in psutil.process_iter():
+        try:
+            cmd = ' '.join(proc.cmdline())
+            if _u(model.name) in _u(cmd):
+                return True
+        except (psutil.NoSuchProcess, psutil.AccessDenied):
+            # Process we tried to look at vanished while iterating over the processlist
+            # or we have no permissions to look at it's cmdline (maybe a superuser process?)
+            pass
+    return False
