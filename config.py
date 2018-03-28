@@ -83,18 +83,6 @@ URL_follwed = Config_file('url', 'URL_follwed')
 USERAGENT = Config_file('url', 'USERAGENT')
 USER = Config_file('credentials', 'USER')
 PASS = Config_file('credentials', 'PASS')
-USERAGENT = Config_file('url', 'USERAGENT')
-
-if (Config_file('folders', 'Video_folder')[:1] == "/"):
-    Video_folder = Config_file('folders', 'Video_folder')
-else:
-    Video_folder = (os.getcwd() + "/" + Config_file('folders', 'Video_folder'))
-
-if (Config_file('folders', 'Converted_folder')[:1] == "/"):
-    Converted_folder = Config_file('folders', 'Converted_folder')
-else:
-    Converted_folder = (os.getcwd() + "/" + Config_file('folders', 'Converted_folder'))
-
 Video_folder = Config_file('folders', 'Video_folder')
 Script_folder = Config_file('folders', 'Script_folder')
 Log_file = Config_file('files', 'Log_file')
