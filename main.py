@@ -1,51 +1,56 @@
-'''
-Main file that includes all functions in appropriate order
-'''
-from config import *
-from time import sleep
+import socket
 import connection
 import modellists
-import run
+from datetime import datetime
+from time import sleep
+from config import *
+from thread import *
+from model import CBModel
 
 if __name__ == '__main__':
-	## Main section
-	# Set logging
-	Logging()
-	# Create directories
-	Remove_folder(Script_folder)
-	Preconditions(Script_folder)
-	Preconditions(Video_folder)
-	# Connecting to server
-	client = connection.Connection()
-	# Get the models list and create main list
-	Models_list_store = modellists.Models_list(client)	
-	# Select models for recording according to wishlist
-	Selected_models = modellists.Select_models(Models_list_store)
-	# Parse page for each model and creatr links for rtmpdump
-	modellists.Get_links(client, Selected_models)
-	#Run scripts
-	run.Run_scripts()
-	# First delay before loop
-	logging.info('Waiting for %d seconds' %Time_delay)
-	sleep(Time_delay)
-	while True:
-		## Reassign updated main models list
-		# Connecting to server
-		client = connection.Connection()
-		#Models_list_store = Compare_lists(Models_list_store, Models_list(client))
-		logging.info(str(len(Models_list_store)) + ' Models in the list before checking: ' + str(Models_list_store))
-		# Models_list_store_new is a list of new models
-		Models_list_store = modellists.Compare_lists(modellists.Models_list(client), modellists.Rtmpdump_models())
-		logging.info('[Loop]List of new models for adding: ' + str(Models_list_store))
-		Selected_models = modellists.Select_models(Models_list_store)
-		# Remove old and create new script folder if we have someone to add
-		if len(Selected_models) != 0:
-			Remove_folder(Script_folder)
-			Preconditions(Script_folder)
-			# Parse page for each model and creatr links for rtmpdump
-			modellists.Get_links(client, Selected_models)
-			#Run scripts
-			run.Run_scripts()
-		logging.info('[Loop]Model list after check looks like: %d models:\n %s \n and models currently being recorded are:\n %s' %(len(Models_list_store), str(Models_list_store),str(modellists.Rtmpdump_models())))
-		logging.info('[Sleep] Waiting for next check (%d seconds)' %Time_delay)
-		sleep(Time_delay)
+    ## Main section
+    # Set logging
+    Logging()
+    # Create directories
+    Preconditions(Video_folder)
+    # Connecting
+    client_factory = connection.ClientFactory()
+    client = connection.Connection(client_factory)
+    # Get the models list and create main list
+    Models_list_store = modellists.Models_list(client)
+    # Select models for recording according to wishlist
+    Selected_models = modellists.Select_models(Models_list_store)
+
+    if not Selected_models:
+        Selected_models = Models_list_store
+        print (datetime.now().strftime("%Y-%m-%d %H:%M:%S ") + 'Empty Whitelist, using complete favorite list')
+
+    # Loop to send which model to capture
+    for model in Selected_models: # type: CBModel
+        # For thread to work it needs to be a tuple
+        model = (model,)
+        # Starting a new thread
+        start_new_thread(modellists.addmodel, model)
+        sleep(1)
+    print (datetime.now().strftime("%Y-%m-%d %H:%M:%S ") + 'Models currently recorded: ' + str(models_online))
+    logging.info('Waiting for %d seconds' % Time_delay)
+    sleep(Time_delay)
+    while True:
+        ## Reassign updated main models list
+        # Connecting to server
+        client = connection.Connection(client_factory)
+        logging.info(str(len(Models_list_store)) + ' Models in the list before checking: ' + str(Models_list_store))
+        # Requesting to server list of models currently captured
+        Models_list_store = modellists.Compare_lists(modellists.Models_list(client), models_online)
+        Selected_models = modellists.Select_models(Models_list_store)
+        # Loop to start new models
+        for model in Selected_models: # type: CBModel
+            # For thread to work it needs to be a tuple
+            model = (model,)
+            # Starting a new thread
+            start_new_thread(modellists.addmodel, model)
+            sleep(1)
+        logging.info('[Loop]Model list after check looks like: %d models:\n %s \n and models currently being recorded are:\n %s' % (len(Models_list_store), str(Models_list_store), str(models_online)))
+        logging.info('[Sleep] Waiting for next check (%d seconds)' % Time_delay)
+        print (datetime.now().strftime("%Y-%m-%d %H:%M:%S") + ' Models currently recorded: ' + str(models_online))
+        sleep(Time_delay)

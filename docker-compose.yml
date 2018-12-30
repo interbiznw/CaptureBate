@@ -1,0 +1,7 @@
+capturebate:
+  restart: always
+  image: bzsklb/capturebate:latest
+  volumes:
+    - /etc/localtime:/etc/localtime:ro
+    - ./config:/root/capturebate/config
+    - /data:/data

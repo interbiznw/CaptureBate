@@ -1,0 +1,6 @@
+/.idea
+.directory
+*.pyc
+*.log
+config.conf
+output.log
